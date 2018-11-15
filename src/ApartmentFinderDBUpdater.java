@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import common.ApartmentInfo;
+import common.ApartmentInfoAvg;
 import common.JCode;
 import server_connector.ServerConnector;
 
@@ -36,6 +37,8 @@ public class ApartmentFinderDBUpdater {
 	// HashMap<code, ArrayList<ApartmentInfo>>
 	private static HashMap<String, ArrayList<ApartmentInfo>> apartmentInfoList = new HashMap<>();
 	
+	private static HashMap<String, ArrayList<ApartmentInfoAvg>> apartmentInfoAvgList = new HashMap<>();
+	
 	public static void main(String[] args) {
 		
 		/*ArrayList<ApartmentInfo> list = new ArrayList();
@@ -49,11 +52,22 @@ public class ApartmentFinderDBUpdater {
 		
 		readJCodeFile();
 		//updateJCode();
-		updateRentList("201810");
-		updateTradeList("201810");
+		for (int year = 2018; year < 2019; year++) {
+			
+			for (int month = 1; month < 10; month++) {
+				
+				String yyyymm = String.valueOf(year) + String.format("%02d", month);
+				updateRentList(yyyymm);
+				updateTradeList(yyyymm);
+			}
+		}
+		//updateRentList("201810");
+		//updateTradeList("201810");
+		
+		updateAvgList();
 		
 		sendDataToDB();
-		
+		sendAvgDataToDB();
 	}
 	
 	private static void test(ArrayList<ApartmentInfo> list) {
@@ -87,8 +101,8 @@ public class ApartmentFinderDBUpdater {
 		
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
         DocumentBuilder builder;  
-        try  
-        {  
+        try  {
+        	
             builder = factory.newDocumentBuilder();  
             Document doc = builder.parse( new InputSource( new StringReader( xmlStr ) ) ); 
             return doc;
@@ -100,7 +114,7 @@ public class ApartmentFinderDBUpdater {
 	
 	private static void updateRentList(String yyyyMM) {
 		
-		System.out.println("Updating rent list... Total: " + jCodeList.size());
+		System.out.println(yyyyMM + " Updating rent list... Total: " + jCodeList.size());
 		
 		for (JCode jCode : jCodeList) {
 			
@@ -112,7 +126,7 @@ public class ApartmentFinderDBUpdater {
 				continue;
 			}
 			
-			System.out.println("Updating rent list... current j code: " + jCode.toString());
+			System.out.println(yyyyMM + " Updating rent list... current j code: " + jCode.toString());
 			
 			NodeList items = document.getElementsByTagName("item");
 			ArrayList<ApartmentInfo> infoList;
@@ -211,7 +225,7 @@ public class ApartmentFinderDBUpdater {
 	
 	private static void updateTradeList(String yyyyMM) {
 		
-		System.out.println("Updating trade list... Total: " + jCodeList.size());
+		System.out.println(yyyyMM + " Updating trade list... Total: " + jCodeList.size());
 		
 		for (JCode jCode : jCodeList) {
 			
@@ -223,7 +237,7 @@ public class ApartmentFinderDBUpdater {
 				continue;
 			}
 			
-			System.out.println("Updating trade list... current j code: " + jCode.toString());
+			System.out.println(yyyyMM + " Updating trade list... current j code: " + jCode.toString());
 			
 			NodeList items = document.getElementsByTagName("item");
 			ArrayList<ApartmentInfo> infoList;
@@ -326,15 +340,105 @@ public class ApartmentFinderDBUpdater {
 				item.getApartmentSize() == info.getApartmentSize() &&
 				item.getJCode() == info.getJCode() &&
 				item.getLegalDong().equals(info.getLegalDong()) &&
+				item.getBuiltYear() == info.getBuiltYear() &&
+				item.getYear() == info.getYear() &&
+				item.getMonth() == info.getMonth() &&
 				item.getDay() == info.getDay() &&
 				item.getFloor() == info.getFloor() &&
-				item.getJibeon() == info.getJibeon()) {
+				item.getJibeon().equals(info.getJibeon())) {
 				
 				item.setTradePrice(info.getTradePrice());
 			}
 		}
 		
 		list.add(info);
+	}
+
+	private static void updateAvgList() {
+		
+		for (JCode jCode : jCodeList) {
+			
+			ArrayList<ApartmentInfo> infoList = apartmentInfoList.get(String.valueOf(jCode.getCode()));
+			if (infoList == null) {
+				continue;
+			}
+			
+			System.out.println("Updating apartment info average... current j code: " + jCode.toString());
+			
+			ArrayList<ApartmentInfoAvg> infoAvgList = new ArrayList();
+			
+			for (ApartmentInfo info : infoList) {
+				
+				updateInfoAvg(infoAvgList, info);
+			}
+			
+			apartmentInfoAvgList.put(String.valueOf(jCode.getCode()), infoAvgList);
+		}
+	}
+	
+	private static ApartmentInfoAvg hasInfoAvg(ArrayList<ApartmentInfoAvg> apartmentInfoAvgList, ApartmentInfo info) {
+		
+		if (apartmentInfoAvgList.size() == 0) {
+			return null;
+		}
+		
+		for (ApartmentInfoAvg infoAvg : apartmentInfoAvgList) {
+			
+			if (infoAvg.getApartmentName().equals(info.getApartmentName()) &&
+				infoAvg.getJCode() == info.getJCode() &&
+				infoAvg.getLegalDong().equals(info.getLegalDong()) &&
+				infoAvg.getBuiltYear() == info.getBuiltYear() &&
+				infoAvg.getYear() == info.getYear() &&
+				infoAvg.getMonth() == info.getMonth() &&
+				infoAvg.getJibeon().equals(info.getJibeon()) &&
+				infoAvg.getJCode() == info.getJCode()) {
+				
+				if (info.getRentPriceMonthly() == 0) {
+				
+					return infoAvg;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	private static void updateInfoAvg(ArrayList<ApartmentInfoAvg> apartmentInfoAvgList, ApartmentInfo info) {
+		
+		ApartmentInfoAvg infoAvg = hasInfoAvg(apartmentInfoAvgList, info);
+		if (infoAvg == null) {
+			
+			ApartmentInfoAvg newInfoAvg = new ApartmentInfoAvg();
+			newInfoAvg.setApartmentName(info.getApartmentName());
+			newInfoAvg.setBuiltYear(info.getBuiltYear());
+			newInfoAvg.setYear(info.getYear());
+			newInfoAvg.setMonth(info.getMonth());
+			newInfoAvg.setDay(info.getDay());
+			newInfoAvg.setLegalDong(info.getLegalDong());
+			newInfoAvg.setJCode(info.getJCode());
+			newInfoAvg.setJibeon(info.getJibeon());
+			
+			if (info.getTradePrice() > 0) {
+				newInfoAvg.addTradePrice(info.getTradePrice());
+			}
+			
+			// 반전세는 계산에서 제외
+			if (info.getRentPrice() > 0 && info.getRentPriceMonthly() == 0) {
+				newInfoAvg.addRentPrice(info.getRentPrice());
+			}
+			
+			apartmentInfoAvgList.add(newInfoAvg);
+		} else {
+			
+			if (info.getTradePrice() > 0) {
+				infoAvg.addTradePrice(info.getTradePrice());
+			}
+			
+			// 반전세는 계산에서 제외
+			if (info.getRentPrice() > 0 && info.getRentPriceMonthly() == 0) {
+				infoAvg.addRentPrice(info.getRentPrice());
+			}
+		}
 	}
 	
 	private static void sendDataToDB() {
@@ -356,6 +460,28 @@ public class ApartmentFinderDBUpdater {
 						info.getYear(), info.getMonth(), info.getDay(), info.getLegalDong(), info.getJibeon(), 
 						info.getApartmentSize(), info.getJCode(), info.getFloor(), 
 						info.getTradePrice(), info.getRentPrice(), info.getRentPriceMonthly());
+			}
+		}
+	}
+	
+	private static void sendAvgDataToDB() {
+		
+		System.out.println("Sending average data to DB...");
+		
+		for (JCode jCode : jCodeList) {
+			
+			ArrayList<ApartmentInfoAvg> infoList = apartmentInfoAvgList.get(String.valueOf(jCode.getCode()));
+			if (infoList == null) {
+				continue;
+			}
+			
+			System.out.println("Sending apartment info average... current j code: " + jCode.toString());
+			
+			for (ApartmentInfoAvg info : infoList) {
+				
+				serverConnector.AddApartmentInfoAvg(info.getApartmentName(), info.getBuiltYear(),
+						info.getYear(), info.getMonth(), info.getLegalDong(), info.getJibeon(), 
+						info.getJCode(), info.getTradePriceAvg(), info.getRentPriceAvg());
 			}
 		}
 	}

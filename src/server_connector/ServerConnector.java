@@ -48,9 +48,20 @@ public class ServerConnector {
 		url += "?apt_name=" + apt_name + "&built_year=" + String.valueOf(built_year) +
 				"&year=" + String.valueOf(year) + "&month=" + String.valueOf(month) + "&day=" + String.valueOf(day) +
 				"&legal_dong=" + legal_dong + "&jibeon=" + jibeon + 
-				"&apt_size=" + String.valueOf(apt_size) +"&j_code=" + String.valueOf(j_code) +
-				"&floor=" + String.valueOf(floor) +"&trade_price=" + String.valueOf(trade_price) +
-				"&rent_price=" + String.valueOf(rent_price) +"&rent_month_price=" + String.valueOf(rent_month_price);
+				"&apt_size=" + String.valueOf(apt_size) + "&j_code=" + String.valueOf(j_code) +
+				"&floor=" + String.valueOf(floor) + "&trade_price=" + String.valueOf(trade_price) +
+				"&rent_price=" + String.valueOf(rent_price) + "&rent_month_price=" + String.valueOf(rent_month_price);
+		return getFromServer(url);
+	}
+	
+	public String AddApartmentInfoAvg(String apt_name, int built_year, int year, int month,  
+			String legal_dong, String jibeon, int j_code, int trade_price_avg, int rent_price_avg) {
+		
+		String url = "http://modoocoupon.woobi.co.kr/gnuboard4/apartmentfinder/php/AddApartmentInfoAvg.php";
+		url += "?apt_name=" + apt_name + "&built_year=" + String.valueOf(built_year) +
+				"&year=" + String.valueOf(year) + "&month=" + String.valueOf(month) + 
+				"&legal_dong=" + legal_dong + "&jibeon=" + jibeon + "&j_code=" + String.valueOf(j_code) +
+				"&trade_price_avg=" + String.valueOf(trade_price_avg) + "&rent_price_avg=" + String.valueOf(rent_price_avg);
 		return getFromServer(url);
 	}
 	
