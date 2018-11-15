@@ -27,7 +27,7 @@ public class ExcelReader {
 		
 		try {
 			
-			FileInputStream fis = new FileInputStream("C:\\Users\\MinGyung\\Desktop\\jscode20180122\\jscode20180122\\KIKcd_B.20180122.xls");
+			FileInputStream fis = new FileInputStream("C:\\Develop_Sourcecode\\ApartmentDBUpdater\\jscode20180122\\KIKcd_B.20180122.xls");
             HSSFWorkbook workbook = new HSSFWorkbook(fis);
             HSSFSheet sheet = workbook.getSheetAt(0); 
             int rows = sheet.getPhysicalNumberOfRows();
