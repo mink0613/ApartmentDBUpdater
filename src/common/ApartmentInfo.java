@@ -1,6 +1,6 @@
 package common;
 
-public class ApartmentInfo {
+public class ApartmentInfo implements Comparable<ApartmentInfo> {
 
 	// 건축년도
 	private int builtYear;
@@ -143,5 +143,10 @@ public class ApartmentInfo {
 	
 	public int getFloor() {
 		return this.floor;
+	}
+	
+	@Override
+	public int compareTo(ApartmentInfo info) {
+		return apartmentName.compareTo(info.getApartmentName());
 	}
 }

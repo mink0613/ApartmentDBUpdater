@@ -55,13 +55,14 @@ public class ServerConnector {
 	}
 	
 	public String AddApartmentInfoAvg(String apt_name, int built_year, int year, int month,  
-			String legal_dong, String jibeon, int j_code, int trade_price_avg, int rent_price_avg) {
+			String legal_dong, String jibeon, int j_code, int trade_price_avg, int rent_price_avg, int trade_count, int rent_count) {
 		
 		String url = "http://modoocoupon.woobi.co.kr/gnuboard4/apartmentfinder/php/AddApartmentInfoAvg.php";
 		url += "?apt_name=" + apt_name + "&built_year=" + String.valueOf(built_year) +
 				"&year=" + String.valueOf(year) + "&month=" + String.valueOf(month) + 
 				"&legal_dong=" + legal_dong + "&jibeon=" + jibeon + "&j_code=" + String.valueOf(j_code) +
-				"&trade_price_avg=" + String.valueOf(trade_price_avg) + "&rent_price_avg=" + String.valueOf(rent_price_avg);
+				"&trade_price_avg=" + String.valueOf(trade_price_avg) + "&rent_price_avg=" + String.valueOf(rent_price_avg) +
+				"&trade_count=" + String.valueOf(trade_count) + "&rent_count=" + String.valueOf(rent_count);
 		return getFromServer(url);
 	}
 	

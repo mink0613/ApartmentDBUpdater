@@ -3,6 +3,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +55,7 @@ public class ApartmentFinderDBUpdater {
 		//updateJCode();
 		for (int year = 2018; year < 2019; year++) {
 			
-			for (int month = 1; month < 10; month++) {
+			for (int month = 8; month < 11; month++) {
 				
 				String yyyymm = String.valueOf(year) + String.format("%02d", month);
 				updateRentList(yyyymm);
@@ -174,12 +175,12 @@ public class ApartmentFinderDBUpdater {
 							info.setDay(day);
 						} else if (childName.equals("보증금액")) {
 							
-							String trimmed = value.trim().replace(",", "");
+							String trimmed = value.replaceAll("\\p{Z}", "").replaceAll(",", "");
 							int rentPrice = Integer.parseInt(trimmed);
 							info.setRentPrice(rentPrice);
 						} else if (childName.equals("월세금액")) {
 							
-							String trimmed = value.trim().replace(",", "");
+							String trimmed = value.replaceAll("\\p{Z}", "").replaceAll(",", "");
 							int rentPriceMonthly = Integer.parseInt(trimmed);
 							info.setRentPriceMonthly(rentPriceMonthly);
 						} else if (childName.equals("전용면적")) {
@@ -188,11 +189,11 @@ public class ApartmentFinderDBUpdater {
 							info.setApartmentSize(apartmentSize);
 						} else if (childName.equals("지번")) {
 							
-							String jibeon = value;
+							String jibeon = value.replaceAll("\\p{Z}", "");
 							info.setJibeon(jibeon);
 						} else if (childName.equals("법정동")) {
 							
-							String legalDong = value.trim();
+							String legalDong = value.replaceAll("\\p{Z}", "");
 							info.setLegalDong(legalDong);
 						} else if (childName.equals("아파트")) {
 							
@@ -285,7 +286,7 @@ public class ApartmentFinderDBUpdater {
 							info.setDay(day);
 						} else if (childName.equals("거래금액")) {
 							
-							String trimmed = value.trim().replace(",", "");
+							String trimmed = value.replaceAll("\\p{Z}", "").replaceAll(",", "");
 							int tradePrice = Integer.parseInt(trimmed);
 							info.setTradePrice(tradePrice);
 						} else if (childName.equals("전용면적")) {
@@ -294,11 +295,11 @@ public class ApartmentFinderDBUpdater {
 							info.setApartmentSize(apartmentSize);
 						} else if (childName.equals("지번")) {
 							
-							String jibeon = value;
+							String jibeon = value.replaceAll("\\p{Z}", "");
 							info.setJibeon(jibeon);
 						} else if (childName.equals("법정동")) {
 							
-							String legalDong = value.trim();
+							String legalDong = value.replaceAll("\\p{Z}", "");
 							info.setLegalDong(legalDong);
 						} else if (childName.equals("아파트")) {
 							
@@ -319,13 +320,15 @@ public class ApartmentFinderDBUpdater {
 				}
 				
 				info.setJCode(code);
-				updateList(infoList, info);
+				infoList.add(info);
+				//updateList(infoList, info);
 			}
 
 			if (apartmentInfoList.containsKey(String.valueOf(code)) == false) {
 				
 				if (infoList.size() > 0) {
 					
+					Collections.sort(infoList);
 					apartmentInfoList.put(String.valueOf(code), infoList);
 				}
 			}
@@ -393,10 +396,7 @@ public class ApartmentFinderDBUpdater {
 				infoAvg.getJibeon().equals(info.getJibeon()) &&
 				infoAvg.getJCode() == info.getJCode()) {
 				
-				if (info.getRentPriceMonthly() == 0) {
-				
-					return infoAvg;
-				}
+				return infoAvg;
 			}
 		}
 		
@@ -481,7 +481,7 @@ public class ApartmentFinderDBUpdater {
 				
 				serverConnector.AddApartmentInfoAvg(info.getApartmentName(), info.getBuiltYear(),
 						info.getYear(), info.getMonth(), info.getLegalDong(), info.getJibeon(), 
-						info.getJCode(), info.getTradePriceAvg(), info.getRentPriceAvg());
+						info.getJCode(), info.getTradePriceAvg(), info.getRentPriceAvg(), info.getTradeCount(), info.getRentCount());
 			}
 		}
 	}

@@ -135,4 +135,12 @@ public class ApartmentInfoAvg {
 	public String getApartmentName() {
 		return this.apartmentName;
 	}
+	
+	public int getTradeCount() {
+		return this.tradeCount;
+	}
+	
+	public int getRentCount() {
+		return this.rentCount;
+	}
 }
